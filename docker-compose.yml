@@ -1,0 +1,109 @@
+version: "3.6"
+services:
+  elastic:
+    container_name: elastic
+    image: bakingbad/bcdhub-elastic:${TAG:-latest}
+    restart: always
+    volumes:
+      - esdata:/usr/share/elasticsearch/data    
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ports:
+      - "127.0.0.1:9300:9300"
+      - "127.0.0.1:9200:9200"
+    logging: &my-logging
+      options:
+        max-size: 10m
+        max-file: "5"
+
+  mq:
+    container_name: mq
+    image: rabbitmq:latest
+    restart: always
+    volumes:
+      - mqdata:/var/lib/rabbitmq
+    ports:
+      - "127.0.0.1:15672:15672"
+      - "127.0.0.1:5672:5672"
+    logging: *my-logging        
+
+  db:
+    container_name: db
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=bcd
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5432:5432
+    logging: *my-logging
+
+  api:
+    container_name: api
+    restart: always
+    image: bakingbad/bcdhub-api:${TAG:-latest}
+    environment: 
+      - GIN_MODE=release
+    depends_on:
+      - elastic
+      - db
+    ports:
+      - 127.0.0.1:14000:14000
+    logging: *my-logging
+
+  indexer:
+    container_name: indexer
+    restart: always
+    image: bakingbad/bcdhub-indexer:${TAG:-latest}
+    environment: 
+      - GIN_MODE=release
+      - CONFIG_FILE=config-sandbox.json
+    depends_on:
+      - elastic
+      - mq
+    logging: *my-logging
+
+  metrics:
+    container_name: metrics
+    restart: always
+    image: bakingbad/bcdhub-metrics:${TAG:-latest}
+    environment: 
+      - GIN_MODE=release
+      - CONFIG_FILE=config-sandbox.json
+    depends_on:
+      - elastic
+      - mq
+      - db
+    logging: *my-logging
+
+  gui:
+    container_name: gui
+    restart: always
+    image: bakingbad/bcdhub-app:${TAG:-latest}
+    depends_on:
+      - api
+    ports:
+      - 127.0.0.1:8080:80
+    logging: *my-logging
+
+  sandbox:
+    container_name: sandbox
+    restart: always
+    image: registry.gitlab.com/tezos/flextesa:image-tutobox-run
+    command: carthagebox start
+    environment:
+      - block_time=4
+    ports:
+      - 127.0.0.1:8732:20000
+    logging: *my-logging
+
+volumes:
+  esdata:
+  mqdata:
+  db:
+    driver: local
