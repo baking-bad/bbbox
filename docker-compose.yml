@@ -101,23 +101,13 @@ services:
   gui:
     container_name: gui
     restart: always
-    image: bakingbad/bcdhub-app:${TAG:-latest}
+    image: bakingbad/bcdhub-gui:${TAG:-latest}
+    entrypoint: /bin/bash
+    command: -c "mv config.box.json config.json && nginx -g 'daemon off;'"
     depends_on:
       - api
     ports:
       - 127.0.0.1:8080:80
-    logging: *my-logging
-
-  flextesa:
-    container_name: flextesa
-    restart: always
-    image: registry.gitlab.com/tezos/flextesa:image-tutobox-run
-    command: carthagebox start
-    environment:
-      - block_time=4
-    ports:
-      - 127.0.0.1:20000:20000
-      - 172.17.0.1:8732:20000
     logging: *my-logging
 
 volumes:

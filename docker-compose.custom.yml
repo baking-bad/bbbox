@@ -1,0 +1,27 @@
+version: "3.6"
+services:
+  api:
+    volumes:
+      - ./config.yml:/app/api/config.yml
+    env_file:
+      - .env
+    command: -f config.yml
+
+  indexer:
+    volumes:
+      - ./config.yml:/app/indexer/config.yml
+    env_file:
+      - .env
+    command: -f config.yml
+
+  metrics:
+    volumes:
+      - ./config.yml:/app/metrics/config.yml
+    env_file:
+      - .env
+    command: -f config.yml
+
+  gui:
+    volumes:
+      - ./config.json:/usr/share/nginx/html/config.json
+    command: -c "nginx -g 'daemon off;'"

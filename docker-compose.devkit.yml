@@ -1,0 +1,26 @@
+version: "3.6"
+services:
+  flextesa:
+    container_name: flextesa
+    restart: always
+    image: registry.gitlab.com/tezos/flextesa:image-tutobox-run
+    command: carthagebox start
+    environment:
+      - block_time=4
+    ports:
+      - 127.0.0.1:8732:20000
+      - 172.17.0.1:8732:20000
+    logging: &my-logging
+      options:
+        max-size: 10m
+        max-file: "5"
+
+  jupyter:
+    container_name: jupyter
+    restart: always
+    image: bakingbad/michelson-kernel
+    ports:
+      - 127.0.0.1:8888:8888
+    volumes:
+      - ./notebooks:/home/jupyter/notebooks
+    logging: *my-logging
