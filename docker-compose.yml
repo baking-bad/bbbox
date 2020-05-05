@@ -48,10 +48,10 @@ services:
       - elastic
       - db
     ports:
-      - 127.0.0.1:14000:14000
+      - 127.0.0.1:42000:14000
     extra_hosts:
       sandbox: 172.17.0.1
-    logging: *my-logging
+    logging: *my-logging                                                                                      
 
   indexer:
     container_name: indexer
@@ -99,7 +99,7 @@ services:
     depends_on:
       - api
     ports:
-      - 127.0.0.1:8080:80
+      - 127.0.0.1:8000:80
     logging: *my-logging
 
 volumes:
