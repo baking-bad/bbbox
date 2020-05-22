@@ -16,7 +16,6 @@ bbbox:
 	docker-compose -f docker-compose.yml -f docker-compose.bbbox.yml up -d
 
 custom:
-	docker-compose pull
 	docker-compose -f docker-compose.yml -f docker-compose.custom.yml up -d
 
 drop:
