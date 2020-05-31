@@ -57,6 +57,7 @@ db:
 
 api:
     bind: ":42000"
+    swagger_host: "you.better-call.dev"
     oauth:
         enabled: true
     sentry:
