@@ -37,3 +37,7 @@ services:
       - ./custom/config.json:/usr/share/nginx/html/config.json
       - ./custom/default.conf:/etc/nginx/conf.d/default.conf
     command: -c "nginx -g 'daemon off;'"
+
+  aws:
+    bucket_name: bcd-elastic-snapshots
+    region: eu-central-1
