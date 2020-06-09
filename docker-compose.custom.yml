@@ -1,6 +1,8 @@
 version: "3.6"
 services:
   elastic:
+    env_file:
+      - .env
     ports:
       - 127.0.0.1:9400:9200
       - 127.0.0.1:9500:9300
