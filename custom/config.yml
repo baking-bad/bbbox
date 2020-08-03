@@ -76,6 +76,7 @@ api:
         - carthagenet
         - zeronet
         - dalphanet
+        - babylonnet
 
 indexer:
     sentry:
