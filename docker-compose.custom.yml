@@ -34,6 +34,31 @@ services:
       - GIN_MODE=release
     command: -f config.yml
 
+  compiler:
+    container_name: compiler
+    restart: always
+    image: bakingbad/bcdhub-compiler:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: cmd/compiler/Dockerfile
+    depends_on:
+      - elastic
+      - mq
+      - db
+    volumes:
+      - /etc/bcd:/etc/bcd
+    volumes:
+      - ./custom/config.yml:/app/compiler/config.yml
+    env_file:
+      - .env
+    environment: 
+      - GIN_MODE=release
+    command: -f config.yml
+    logging:
+      options:
+        max-size: 10m
+        max-file: "5"    
+
   gui:
     volumes:
       - ./custom/config.json:/usr/share/nginx/html/config.json
