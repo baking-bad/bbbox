@@ -1,8 +1,10 @@
+TAG=2.6
+
 .PHONY: bbbox custom
 
 bcd:
-	TAG=2.5 docker-compose pull
-	TAG=2.5 docker-compose up -d
+	TAG=$(TAG) docker-compose pull
+	TAG=$(TAG) docker-compose up -d
 
 bcd-stop:
 	docker-compose down
@@ -13,8 +15,8 @@ bcd-clear:
 	docker volume rm bbbox_db
 
 bbbox:
-	TAG=2.5 docker-compose pull
-	TAG=2.5 docker-compose -f docker-compose.yml -f docker-compose.bbbox.yml up -d
+	TAG=$(TAG) docker-compose pull
+	TAG=$(TAG) docker-compose -f docker-compose.yml -f docker-compose.bbbox.yml up -d
 
 custom:
 	docker-compose -f docker-compose.yml -f docker-compose.custom.yml up -d
