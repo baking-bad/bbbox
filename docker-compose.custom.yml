@@ -10,6 +10,7 @@ services:
   api:
     volumes:
       - ./custom/config.yml:/app/api/config.yml
+      - /etc/you:/etc/bcd
     env_file:
       - .env
     environment: 
@@ -46,8 +47,7 @@ services:
       - mq
       - db
     volumes:
-      - /etc/bcd:/etc/bcd
-    volumes:
+      - /etc/you:/etc/bcd
       - ./custom/config.yml:/app/compiler/config.yml
     env_file:
       - .env
