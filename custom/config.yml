@@ -79,6 +79,7 @@ api:
 
 indexer:
     project_name: indexer
+    skip_delegator_blocks: true
     sentry:
         enabled: true
     networks:

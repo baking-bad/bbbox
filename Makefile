@@ -52,3 +52,6 @@ db-dump:
 
 db-restore:
 	docker exec -i db psql --username $$POSTGRES_USER -v ON_ERROR_STOP=on bcd < $(BACKUP)
+
+ps:
+	docker ps --format "table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"
