@@ -1,0 +1,112 @@
+version: "3.6"
+services:
+  elastic:
+    container_name: sandbox-elastic
+    image: bakingbad/bcdhub-elastic:${TAG:-latest}
+    restart: always
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    logging: &my-logging
+      options:
+        max-size: 10m
+        max-file: "5"
+
+  mq:
+    container_name: sandbox-mq
+    image: rabbitmq:latest
+    restart: always
+    volumes:
+      - mqdata:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    logging: *my-logging
+
+  db:
+    container_name: sandbox-db
+    image: postgres:12
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=bcd_box
+    volumes:
+      - db:/var/lib/postgresql/data
+    logging: *my-logging
+
+  api:
+    container_name: sandbox-api
+    restart: always
+    image: bakingbad/bcdhub-api:${TAG:-latest}
+    environment:
+      - BCD_ENV=sandbox
+      - GIN_MODE=debug
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=bcd_box
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    depends_on:
+      - elastic
+      - db
+      - mq
+    extra_hosts:
+      sandbox: 172.17.0.1
+    logging: *my-logging
+
+  indexer:
+    container_name: sandbox-indexer
+    restart: always
+    image: bakingbad/bcdhub-indexer:${TAG:-latest}
+    environment:
+      - BCD_ENV=sandbox
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    depends_on:
+      - elastic
+      - mq
+      - metrics
+    extra_hosts:
+      sandbox: 172.17.0.1
+    logging: *my-logging
+
+  metrics:
+    container_name: sandbox-metrics
+    restart: always
+    image: bakingbad/bcdhub-metrics:${TAG:-latest}
+    environment:
+      - BCD_ENV=sandbox
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=bcd_box
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    depends_on:
+      - elastic
+      - mq
+      - db
+    extra_hosts:
+      sandbox: 172.17.0.1
+    logging: *my-logging
+
+  gui:
+    container_name: sandbox-gui
+    restart: always
+    image: bakingbad/bcdhub-gui:${TAG:-latest}
+    entrypoint: /bin/bash
+    command: -c "mv config.sandbox.json config.production.json && nginx -g 'daemon off;'"
+    depends_on:
+      - api
+    ports:
+      - 127.0.0.1:8000:80
+    logging: *my-logging
+
+volumes:
+  esdata:
+  mqdata:
+  db:
+    driver: local

@@ -3,11 +3,11 @@ TAG=2.6
 .PHONY: bbbox custom
 
 bcd:
-	TAG=$(TAG) docker-compose pull
-	TAG=$(TAG) docker-compose up -d
+	TAG=3.2 COMPOSE_PROJECT_NAME=bbbox docker-compose -f docker-compose.sandbox.yml pull
+	TAG=3.2 COMPOSE_PROJECT_NAME=bbbox docker-compose -f docker-compose.sandbox.yml up -d
 
 bcd-stop:
-	docker-compose down
+	docker-compose -f docker-compose.sandbox.yml down
 
 bcd-clear:
 	docker volume rm bbbox_mqdata
